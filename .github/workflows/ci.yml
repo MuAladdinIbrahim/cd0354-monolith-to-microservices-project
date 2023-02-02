@@ -1,0 +1,25 @@
+name: Build and Push images
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker-compose -f docker-compose-build.yaml build --parallel
+      - run: docker tag reverseproxy mualaddinibrahim/reverseproxy
+      - run: docker tag backend-feed mualaddinibrahim/udagram-api-feed
+      - run: docker tag backend-user mualaddinibrahim/udagram-api-user
+      - run: docker tag udagram-frontend:local mualaddinibrahim/udagram-frontend
+
+      - run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - run: docker push mualaddinibrahim/reverseproxy
+      - run: docker push mualaddinibrahim/udagram-api-feed
+      - run: docker push mualaddinibrahim/dagram-api-user
+      - run: docker push mualaddinibrahim/udagram-frontend
